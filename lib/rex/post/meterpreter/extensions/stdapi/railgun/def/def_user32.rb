@@ -11,6 +11,15 @@ class Def_user32
 
 	def self.create_dll(dll_path = 'user32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
+	
+		dll.add_function('ShutdownBlockReasonCreate', 'DWORD',[
+			["DWORD","hWnd","in"],
+			["PBLOB","pwszReason","in"],
+			])
+
+		dll.add_function('ShutdownBlockReasonDestroy', 'DWORD',[
+			["DWORD","hWnd","in"],
+			])
 
 		dll.add_function('ActivateKeyboardLayout', 'DWORD',[
 			["DWORD","hkl","in"],
