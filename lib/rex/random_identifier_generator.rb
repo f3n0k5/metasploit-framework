@@ -68,8 +68,8 @@ class Rex::RandomIdentifierGenerator
 
   # Returns the @value_by_name hash
   #
-  # @return [hash]
-  def get_hash
+  # @return [Hash]
+  def to_h
     return @value_by_name
   end
 
@@ -89,6 +89,7 @@ class Rex::RandomIdentifierGenerator
     @value_by_name[name]
   end
   alias [] get
+  alias init_var get
 
   # Add a new identifier. Its name will be checked for uniqueness among
   # previously-generated names.

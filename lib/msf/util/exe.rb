@@ -57,7 +57,7 @@ require 'digest/sha1'
   end
 
   def self.rig_read_replace_script_template(filename, rig)
-    read_replace_script_template(filename, rig.get_hash)
+    read_replace_script_template(filename, rig.to_h)
   end
 
   def self.read_replace_script_template(filename, hash_sub)
@@ -964,13 +964,13 @@ def self.to_vba(framework,code,opts={})
   def self.to_mem_aspx(framework, code, exeopts={})
     # Intialize rig and value names
     rig = Rex::RandomIdentifierGenerator.new()
-    rig[:var_funcAddr]
-    rig[:var_hThread]
-    rig[:var_pInfo]
-    rig[:var_threadId]
-    rig[:var_bytearray]
+    rig.init_var(:var_funcAddr)
+    rig.init_var(:var_hThread)
+    rig.init_var(:var_pInfo)
+    rig.init_var(:var_threadId)
+    rig.init_var(:var_bytearray)
 
-    rig.store(:shellcode, Rex::Text.to_csharp(code, 100, rig[:var_bytearray]))
+    rig.store(:shellcode, Rex::Text.to_csharp(code, 100, rig.init_var(:var_bytearray)))
 
     return rig_read_replace_script_template("to_mem.aspx.template", rig)
   end
