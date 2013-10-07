@@ -18,6 +18,7 @@ require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
 require 'msf/core/exe/segment_injector'
+require 'rex/authenticode'
 
   ##
   #
@@ -1569,6 +1570,11 @@ def self.to_vba(framework,code,opts={})
     res
   end
 
+def self.sign(pe)
+  authenticode_formatter = Rex::Authenticode::Formatter.new({})
+  authenticode_formatter.sign(pe)
+  return '' #pe
+end
 
   #
   # Generate an executable of a given format suitable for running on the
@@ -1625,7 +1631,14 @@ def self.to_vba(framework,code,opts={})
         when ARCH_X86,nil then to_win32pe(framework, code, exeopts)
         when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
         when ARCH_X64     then to_win64pe(framework, code, exeopts)
-        end
+               end
+    when 'exe-s'
+      output = case arch
+                 when ARCH_X86,nil then to_win32pe_dll(framework, code, exeopts)
+                 #when ARCH_X86_64  then to_win64pe(framework, code, exeopts)
+                 #when ARCH_X64     then to_win64pe(framework, code, exeopts)
+               end
+      output = sign(output)
 
     when 'exe-service'
       output = case arch
@@ -1729,7 +1742,7 @@ def self.to_vba(framework,code,opts={})
 
   def self.to_executable_fmt_formats
     [
-      'dll','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
+      'dll','exe-s','exe','exe-service','exe-small','exe-only','elf','macho','vba','vba-exe',
       'vbs','loop-vbs','asp','aspx', 'aspx-exe','war','psh','psh-net', 'msi', 'msi-nouac'
     ]
   end
