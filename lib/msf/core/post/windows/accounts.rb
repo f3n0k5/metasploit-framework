@@ -110,9 +110,22 @@ module Accounts
     # A reference to the SID data structure. Generally needed when working with sids
     psid = conversion['pSid']
 
-    # http://msdn.microsoft.com/en-us/library/aa379166(v=vs.85).aspx
-    # TODO: The buffer sizes here need to be reviewed/adjusted/optimized
-    lookup = adv.LookupAccountSidA(system_name, psid, 100, 100, 100, 100, 1)
+    # First call retrieves correct buffer sizes
+    buffer_size = adv.LookupAccountSidA(system_name,
+                                        psid,
+                                        nil,
+                                        0,
+                                        nil,
+                                        0,
+                                        1)
+    # Second call retrieves values
+    lookup = adv.LookupAccountSidA(system_name,
+                                   psid,
+                                   buffer_size['cchName'],
+                                   buffer_size['cchName'],
+                                   buffer_size['cchReferencedDomainName'],
+                                   buffer_size['cchReferencedDomainName'],
+                                   1)
 
     # We no longer need the sid so free it.
     # NOTE: We do not check to see if this call succeeded. Do we care?
