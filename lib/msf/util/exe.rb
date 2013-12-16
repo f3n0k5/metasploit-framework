@@ -938,11 +938,21 @@ require 'msf/core/exe/segment_injector'
     rig.init_var(:var_type_builder)
     rig.init_var(:var_buffer)
     rig.init_var(:var_memset)
+    rig.init_var(:var_is_x86_shellcode)
+    rig.init_var(:var_hprocess)
+    rig.init_var(:var_iswow64)
 
     hash_sub = rig.to_h
+    puts opts
+
+    if opts[:payload_arch] == 'x86'
+      is_x86=1
+    else
+      is_x86=0
+    end
 
     hash_sub[:b64shellcode] = Rex::Text.encode_base64(code)
-
+    hash_sub[:is_x86_shellcode] = is_x86
     return read_replace_script_template("to_mem_pshreflection.ps1.template", hash_sub).gsub(/(?<!\r)\n/, "\r\n")
   end
 
