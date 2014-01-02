@@ -946,79 +946,19 @@ def self.to_vba(framework,code,opts={})
     zip
   end
 
-  # Creates a Web Archive (WAR) file from the provided jsp code.
+  # Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
+  # payload.  The jsp page converts the hexdump back to a normal binary file
+  # and places it in the temp directory. The payload file is then executed.
   #
-  # On Tomcat, WAR files will be deployed into a directory with the same name
-  # as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
-  # server is in a default configuration, deoployment will happen
-  # automatically. See
-  # {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
-  # documentation} for a description of how this works.
-  #
-  # @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
-  #   in the archive. This will be compiled by the victim servlet container
-  #   (e.g., Tomcat) and act as the main function for the servlet.
+  # @param exe [String] Executable to drop and run.
   # @param opts [Hash]
-  # @option opts :jsp_name [String] Name of the <jsp-file> in the archive
-  #   _without the .jsp extension_. Defaults to random.
   # @option opts :app_name [String] Name of the app to put in the <servlet-name>
   #   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
   #   random.
   # @option opts :extra_files [Array<String,String>] Additional files to add
   #   to the archive. First elment is filename, second is data
   #
-  # @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
-  #
   # @return [String]
-  def self.to_war(jsp_raw, opts={})
-    jsp_name = opts[:jsp_name]
-    jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
-    app_name = opts[:app_name]
-    app_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
-
-    meta_inf = [ 0xcafe, 0x0003 ].pack('Vv')
-    manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
-    web_xml = %q{<?xml version="1.0"?>
-<!DOCTYPE web-app PUBLIC
-"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-"http://java.sun.com/dtd/web-app_2_3.dtd">
-<web-app>
-<servlet>
-<servlet-name>NAME</servlet-name>
-<jsp-file>/PAYLOAD.jsp</jsp-file>
-</servlet>
-</web-app>
-}
-    web_xml.gsub!(/NAME/, app_name)
-    web_xml.gsub!(/PAYLOAD/, jsp_name)
-
-    zip = Rex::Zip::Archive.new
-    zip.add_file('META-INF/', '', meta_inf)
-    zip.add_file('META-INF/MANIFEST.MF', manifest)
-    zip.add_file('WEB-INF/', '')
-    zip.add_file('WEB-INF/web.xml', web_xml)
-    # add the payload
-    zip.add_file("#{jsp_name}.jsp", jsp_raw)
-
-    # add extra files
-    if opts[:extra_files]
-      opts[:extra_files].each { |el|
-        zip.add_file(el[0], el[1])
-      }
-    end
-
-    return zip.pack
-  end
-
-  # Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
-  # payload.  The jsp page converts the hexdump back to a normal binary file
-  # and places it in the temp directory. The payload file is then executed.
-  #
-  # @see to_war
-  # @param exe [String] Executable to drop and run.
-  # @param opts (see to_war)
-  # @option opts (see to_war)
-  # @return (see to_war)
   def self.to_jsp_war(exe, opts={})
 
     # begin <payload>.jsp
@@ -1054,7 +994,9 @@ def self.to_vba(framework,code,opts={})
 
     template = read_replace_script_template("to_exe_jsp.war.template", hash_sub)
 
-    return self.to_war(template, opts)
+    war = Rex::Zip::War.new({:jsp => template})
+    war.build_manifest
+    return war.pack
   end
 
   # Creates a .NET DLL which loads data into memory

@@ -127,28 +127,11 @@ module Msf::Payload::JSP
   end
 
   # Wraps the jsp payload into a war
-  # @return [Rex::Zip::Jar] a war to execute the jsp payload
+  # @return [Rex::Zip::War] a war to execute the jsp payload
   def generate_war
-    jsp_name = "#{Rex::Text.rand_text_alpha_lower(rand(8)+8)}.jsp"
-
-    zip = Rex::Zip::Jar.new
-
-    web_xml = <<-EOF
-<?xml version="1.0"?>
-<!DOCTYPE web-app PUBLIC
-"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-"http://java.sun.com/dtd/web-app_2_3.dtd">
-<web-app>
-  <welcome-file-list>
-    <welcome-file>#{jsp_name}</welcome-file>
-  </welcome-file-list>
-</web-app>
-    EOF
-
-    zip.add_file("WEB-INF/", '')
-    zip.add_file("WEB-INF/web.xml", web_xml)
-    zip.add_file(jsp_name, generate)
-
-    zip
+    war = Rex::Zip::War.new({:jsp => generate})
+    war.build_manifest
   end
+
 end
+

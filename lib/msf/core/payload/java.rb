@@ -71,39 +71,18 @@ module Msf::Payload::Java
   #
   def generate_war(opts={})
     raise if not respond_to? :config
-    zip = Rex::Zip::Jar.new
+    war = Rex::Zip::War.new(opts)
 
-    web_xml = %q{<?xml version="1.0"?>
-<!DOCTYPE web-app PUBLIC
-"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-"http://java.sun.com/dtd/web-app_2_3.dtd">
-<web-app>
-<servlet>
-<servlet-name>NAME</servlet-name>
-<servlet-class>metasploit.PayloadServlet</servlet-class>
-</servlet>
-<servlet-mapping>
-<servlet-name>NAME</servlet-name>
-<url-pattern>/*</url-pattern>
-</servlet-mapping>
-</web-app>
-}
-    app_name = opts[:app_name] || Rex::Text.rand_text_alpha_lower(rand(8)+8)
-
-    web_xml.gsub!(/NAME/, app_name)
-
-    paths = [
+    class_files = [
       [ "metasploit", "Payload.class" ],
       [ "metasploit", "PayloadServlet.class" ],
     ] + @class_files
 
-    zip.add_file('WEB-INF/', '')
-    zip.add_file('WEB-INF/web.xml', web_xml)
-    zip.add_file("WEB-INF/classes/", "")
-    zip.add_files(paths, File.join(Msf::Config.data_directory, "java"), "WEB-INF/classes/")
-    zip.add_file("WEB-INF/classes/metasploit.dat", config)
-
-    zip
+    war.add_files('WEB-INF/classes','')
+    war.add_files(paths, File.join(Msf::Config.data_directory, 'java'), 'WEB-INF/classes/')
+    war.add_file('WEB-INF/classes/metasploit.dat', config)
+    war.build_manifest
+    war
   end
 
 end
