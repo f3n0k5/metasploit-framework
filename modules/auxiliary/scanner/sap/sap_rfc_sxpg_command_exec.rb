@@ -36,7 +36,7 @@ class Metasploit4 < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username', 'SAP*']),
         OptString.new('PASSWORD', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'Command Name as in SM69', 'CAT']),
-        OptString.new('PARAM', [true, 'Command Parameters', '/etc/passwd']),
+        OptString.new('PARAM', [false, 'Command Parameters', '/etc/passwd']),
         OptEnum.new('OS', [true, 'SM69 Target OS','UNIX',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
       ], self.class)
   end
@@ -61,6 +61,7 @@ class Metasploit4 < Msf::Auxiliary
 
   def exec_CMD(user, client, pass, rhost, rport, cmd, param, os)
     data = nil
+    param = '' unless param
 
     login(rhost, rport, client, user, pass) do |conn|
       conn.connection_info
