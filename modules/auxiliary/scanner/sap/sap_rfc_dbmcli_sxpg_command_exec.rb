@@ -20,9 +20,10 @@ class Metasploit4 < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'SAP RFC SXPG_CALL_SYSTEM',
+      'Name' => 'SAP RFC DBMCLI SXPG_COMMAND_EXEC',
       'Description' => %q{
-        This module makes use of the SXPG_CALL_SYSTEM Remote Function Call to execute OS commands as configured in SM69.
+        This module makes use of the SXPG_COMMAND_EXEC Remote Function Call to execute OS commands as configured in SM69.
+        It uses the DBMCLI parameter injection to write OS commands to a file for execution.
         The module requires the NW RFC SDK from SAP as well as the Ruby wrapper nwrfc (http://rubygems.org/gems/nwrfc).
       },
       'References' => [[ 'URL', 'https://labs.mwrinfosecurity.com/blog/2012/09/03/sap-parameter-injection/' ]],
