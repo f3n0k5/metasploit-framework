@@ -106,9 +106,9 @@ ABAPCODE
         )
 
         loot_path = store_loot("sap.codevnB.hashes", "text/plain", rhost, codevnB, "#{rhost}", "SAP codevnB Hashes", this_service)
-        print_good("[SAP] #{rhost}:#{rport} - codevnB hashes stored in #{loot_path}")
+        print_good("#{rhost}:#{rport} [SAP] - codevnB hashes stored in #{loot_path}")
         loot_path = store_loot("sap.codevnG.hashes", "text/plain", rhost, codevnG, "#{rhost}", "SAP codevnG Hashes", this_service)
-        print_good("[SAP] #{rhost}:#{rport} - codevnG hashes stored in #{loot_path}")
+        print_good("#{rhost}:#{rport} [SAP] - codevnG hashes stored in #{loot_path}")
       rescue NWError => e
         print_error("#{rhost}:#{rport} [SAP] #{e.code} - #{e.message}")
       end
