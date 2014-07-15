@@ -69,5 +69,5 @@ group :test do
 end
 
 group :sap do
-  gem 'nwrfc', :git => 'https://github.com/Meatballs1/nwrfc.git', :branch => 'unblock'
+  gem 'nwrfc', '>= 0.0.6'
 end
