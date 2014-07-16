@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
       'Description' => %q{ This module shows HTTP Headers returned by the scanned systems. },
       'Author'      =>
       [
-        'Christian Mehlmauer <FireFart[at]gmail.com>',
+        'Christian Mehlmauer',
         'rick2600'
       ],
       'References'  =>
@@ -76,12 +76,12 @@ class Metasploit3 < Msf::Auxiliary
       header_string = "#{h[0]}: #{h[1]}"
       print_status "#{peer}: #{header_string}"
 
-      report_note({
-        :type => 'HTTP header',
+      report_note(
+        :type => "http.header.#{rport}.#{counter}",
         :data => header_string,
         :host => ip,
         :port => rport
-      })
+      )
       counter = counter + 1
     end
     if counter == 0
